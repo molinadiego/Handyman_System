@@ -2,6 +2,8 @@
 
 **Stack:** Node.js + Express, PostgreSQL + Prisma, React + Tailwind CSS como PWA.
 
+**Desarrollo/Neon:** Neon Free se usa para desarrollo y pruebas; producción permanece separada. Prisma usa `DATABASE_URL` pooled para tráfico de aplicación y `DATABASE_URL_UNPOOLED` directo para migraciones. Ejecutar herramientas con `neon-env run` cuando necesiten credenciales; no hacer `neon env pull` ni escribir secretos en archivos locales.
+
 ## Backend por capas
 
 El flujo de una petición y su persistencia será:

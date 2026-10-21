@@ -16,6 +16,7 @@ Aplicación comercial para que negocios de handyman administren sus operaciones 
 - Git es el sistema de control de versiones del proyecto.
 - `.gitignore` excluye archivos de entorno/credenciales, dependencias, artefactos de build, bases de datos y datos/cargas locales.
 - Preguntar y esperar aprobación explícita antes de ejecutar `git add` o crear commits, incluso si parecen necesarios; preguntar también antes de publicar ramas o hacer `push`. Nunca reescribir historia con operaciones forzadas/destructivas.
+- Neon Free seleccionado para desarrollo/pruebas. La rama `dev` se creó desde `production` con vencimiento de 7 días; mantener `production` sin migraciones de desarrollo. Usar `neon-env run` y nunca hacer `neon env pull` ni guardar secretos en `.env`.
 
 ## Decisiones establecidas
 
@@ -41,6 +42,13 @@ Aplicación comercial para que negocios de handyman administren sus operaciones 
 - Conflictos entre eventos offline y cambios del dueño se conservan con actor/fecha y se remiten a revisión del dueño; no se sobrescriben automáticamente.
 - Campos mínimos: orden requiere destinatario/cliente, propiedad y alcance; presupuesto e invoice draft requieren destinatario, propiedad y al menos una partida. El borrador de presupuesto puede tener precios incompletos.
 - Permisos de empleados configurables por empleado. Por defecto pueden ver órdenes asignadas, actualizar avance y añadir notas; el dueño puede habilitar fotos/videos. No modifican precio, alcance ni agenda.
+- Cuenta del dueño con email/contraseña; hash Argon2id y verificación obligatoria antes de usar el producto. Verificación 24 h; enlace de recuperación 1 h.
+- Contraseñas: mínimo 12, máximo 128 caracteres; no imponer reglas de composición artificiales.
+- Sesión opaca del lado servidor en cookie HttpOnly/SameSite=Lax, Secure en producción, 7 días máximo y revocable. Una cuenta puede poseer varios workspaces; cada workspace tiene un solo titular.
+- Email de verificación/recuperación mediante interfaz `EmailService`, sin proveedor integrado por ahora. Nunca registrar tokens o enlaces.
+- Resend seleccionado como proveedor gratuito inicial; adaptador HTTP usa `fetch` nativo, sin SDK. Envío real requiere dominio verificado, API key y remitente configurados localmente, nunca en Git.
+- Preferencia de idioma `en`/`es` guardada por cuenta, igual entre workspaces; al registrarse se detecta el idioma del navegador con fallback a inglés y se puede cambiar en Configuración.
+- Idioma de interfaz persistente a nivel de cuenta de dueño (`en`/`es`), igual en todos sus workspaces; valor inicial según idioma del navegador y modificable en Configuración.
 
 ## Reglas críticas
 

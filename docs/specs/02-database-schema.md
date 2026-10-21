@@ -15,10 +15,11 @@
 
 ### Workspace y acceso
 
-- **Workspace:** `id`, nombre del negocio, `timeZone`, moneda, tasa de impuesto predeterminada/configuración aplicable, plazo de factura predeterminado (30 días iniciales), preferencias regionales, timestamps y contadores independientes por tipo documental.
-- **User:** identidad y estado de cuenta; evitar almacenar secretos de autenticación en texto plano.
-- **WorkspaceMember:** `workspaceId`, `userId`, rol/funciones autorizadas, estado. Un solo dueño titular en V1; empleados pueden registrarse sin cuenta.
-- **Employee/Helper:** `workspaceId`, nombre/contacto, color de calendario, estado, permisos configurables por el dueño y vínculo opcional con miembro. Permisos base: ver órdenes asignadas, marcar etapas y añadir notas; carga de fotos y videos desactivada hasta habilitación explícita. No puede alterar precio, alcance ni agenda.
+- **User:** cuenta global del dueño con email normalizado y único, `passwordHash` Argon2id, `preferredLanguage` (`en`/`es`, inicializado desde navegador con fallback `en`), `emailVerifiedAt` y timestamps. Contraseña de 12–128 caracteres validada en servicio. Una cuenta puede ser dueña de varios workspaces.
+- **Workspace:** `id`, nombre del negocio, `ownerUserId` obligatorio, `timeZone`, moneda, tasa de impuesto predeterminada/configuración aplicable, plazo de factura predeterminado (30 días iniciales), preferencias regionales, timestamps y contadores independientes por tipo documental. Cada workspace tiene exactamente un dueño titular; `ownerUserId` no es único globalmente, para permitir varios workspaces por usuario.
+- **AuthSession:** usuario, hash del token opaco de sesión, fechas de creación/expiración, última actividad y revocación. Vigencia inicial de 7 días; revocar al cerrar sesión y tras cambio/restablecimiento de contraseña. Nunca guardar el token de sesión en claro.
+- **AuthActionToken:** usuario, hash del token, propósito (`EMAIL_VERIFICATION` o `PASSWORD_RESET`), expiración, uso y creación. Verificación expira en 24 horas; recuperación expira en 1 hora. Nunca persistir tokens en claro.
+- **Employee/Helper:** empleado sin cuenta de usuario obligatoria, ligado a un workspace, con nombre/contacto, color de calendario y permisos configurables por el dueño. Por defecto puede ver órdenes asignadas, actualizar avance y añadir notas; fotos/videos desactivados hasta habilitación explícita. No puede alterar precio, alcance ni agenda.
 
 ### Clientes y propiedades
 
@@ -92,6 +93,15 @@
 - Propiedades conservan historial de relaciones y órdenes siempre mantienen su asociación histórica original.
 - Pagado y saldo pendiente se calculan a partir de importes y asignaciones válidas; aplicar reglas monetarias de redondeo definidas.
 - Soft delete no reemplaza auditoría y no debe ocultar eventos financieros; definir política explícita antes de agregarlo.
+
+## Identidad y autorización
+
+- El dueño usa email y contraseña; no puede iniciar sesión ni crear/usar workspaces hasta verificar el email.
+- Las contraseñas se hashean con Argon2id; nunca se almacenan en texto plano ni se registran.
+- Sesiones opacas del lado servidor se entregan en cookie `HttpOnly`, `SameSite=Lax` y `Secure` en producción; duración máxima inicial de 7 días y revocación explícita.
+- La interfaz de envío de correo será una abstracción intercambiable (`EmailService`) sin proveedor configurado por ahora. No imprimir enlaces, tokens ni secretos en logs.
+- Empleados no tienen sesión general: acceden solo mediante el código específico de su asignación/orden.
+- Toda petición a recursos de negocio resuelve un workspace que pertenezca al dueño autenticado y aplica `workspaceId` en las lecturas y escrituras.
 
 ## Decisiones pendientes antes de migraciones
 

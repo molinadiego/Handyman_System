@@ -10,6 +10,7 @@ out/
 # Variables de entorno y credenciales locales
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 *.p12
@@ -37,3 +38,4 @@ temp/
 # Archivos del sistema operativo y editores
 .DS_Store
 Thumbs.db
+.neon

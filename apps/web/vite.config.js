@@ -5,6 +5,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   // Prevent Vite from loading any .env files; configuration comes from process env.
   envDir: false,
+  server: {
+    proxy: {
+      '/api': 'http://127.0.0.1:3001',
+    },
+  },
   plugins: [
     tailwindcss(),
     VitePWA({

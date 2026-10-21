@@ -3,15 +3,89 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// Foundational model only; the complete workspace and tenant schema is defined in Phase 2.
+enum AuthActionPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model User {
+  id              String            @id @default(uuid()) @db.Uuid
+  email           String            @unique @db.VarChar(254)
+  passwordHash    String            @db.VarChar(255)
+  preferredLanguage String          @default("en") @db.VarChar(2)
+  emailVerifiedAt DateTime?         @db.Timestamptz(3)
+  lastLoginAt     DateTime?         @db.Timestamptz(3)
+  createdAt       DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime          @updatedAt @db.Timestamptz(3)
+  workspaces      Workspace[]       @relation("WorkspaceOwner")
+  sessions        AuthSession[]
+  actionTokens    AuthActionToken[]
+}
+
 model Workspace {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  timeZone  String
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  id                      String     @id @default(uuid()) @db.Uuid
+  ownerUserId             String     @db.Uuid
+  name                    String     @db.VarChar(160)
+  timeZone                String     @db.VarChar(64)
+  defaultTaxRate          Decimal?   @db.Decimal(7, 4)
+  defaultInvoiceTermsDays Int        @default(30)
+  nextEstimateNumber      Int        @default(1)
+  nextWorkOrderNumber     Int        @default(1)
+  nextInvoiceNumber       Int        @default(1)
+  createdAt               DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime   @updatedAt @db.Timestamptz(3)
+  owner                   User       @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  employees               Employee[]
+
+  @@index([ownerUserId])
+}
+
+model AuthSession {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique @db.Char(64)
+  expiresAt  DateTime  @db.Timestamptz(3)
+  lastSeenAt DateTime? @db.Timestamptz(3)
+  revokedAt  DateTime? @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model AuthActionToken {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  tokenHash String           @unique @db.Char(64)
+  purpose   AuthActionPurpose
+  expiresAt DateTime         @db.Timestamptz(3)
+  consumedAt DateTime?       @db.Timestamptz(3)
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, expiresAt])
+}
+
+model Employee {
+  id                String    @id @default(uuid()) @db.Uuid
+  workspaceId       String    @db.Uuid
+  name              String    @db.VarChar(160)
+  email             String?   @db.VarChar(254)
+  phone             String?   @db.VarChar(40)
+  calendarColor     String?   @db.VarChar(32)
+  canUpdateProgress Boolean   @default(true)
+  canAddNotes       Boolean   @default(true)
+  canUploadPhotos   Boolean   @default(false)
+  canUploadVideos   Boolean   @default(false)
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt @db.Timestamptz(3)
+  workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, isActive])
 }

@@ -14,5 +14,9 @@
     "dev:web": "npm run dev --workspace=@handy/web",
     "build": "npm run build --workspace=@handy/web",
     "test": "npm run test --workspace=@handy/api"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.3",
+    "@neon/env": "^1.6.4"
   }
 }

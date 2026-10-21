@@ -18,14 +18,22 @@ Plan derivado de `handyman.txt`. Marcar una casilla solo cuando el alcance esté
 
 ## Fase 2 — Workspace, usuarios y permisos
 
-- [ ] Modelar workspace, dueño titular, miembros y empleados/ayudantes.
-- [ ] Implementar autenticación y autorización en el servidor.
-- [ ] Aplicar `workspace_id` en datos, relaciones y consultas.
-- [ ] Configurar la zona horaria del workspace; almacenar instantes en UTC.
-- [ ] Definir permisos para información sensible y funciones de empleados; por defecto pueden ver órdenes asignadas, actualizar avance y notas, pero no precio/alcance/agenda.
-- [ ] Definir acceso de empleados a órdenes asignadas mediante códigos específicos por orden, generados por la app y enviados por los canales elegidos por el dueño.
+- [x] Modelar dueño, workspaces múltiples por usuario, titular único por workspace y empleados en Prisma.
+- [x] Implementar la lógica base de registro/login Argon2id, verificación obligatoria, tokens y recuperación; cubrir reglas centrales con pruebas unitarias.
+- [x] Implementar base de cookie HttpOnly, sesión de 7 días, revocación, middleware de sesión y control de origen.
+- [x] Implementar interfaz EmailService y adaptador Resend con `fetch` nativo, sin exponer tokens.
+- [x] Aplicar ownership/`workspaceId` y autorización del dueño en modelos y repositorios de identidad/workspaces de Fase 2.
+- [x] Guardar zona horaria en workspace y validar identificadores IANA; las fechas de citas se almacenarán UTC al crear esos modelos.
+- [x] Definir permisos para información sensible y funciones de empleados; por defecto pueden ver órdenes asignadas, actualizar avance y notas, pero no precio/alcance/agenda.
+- [x] Implementar preferencia de idioma de cuenta, detección inicial del navegador y selector persistente en Configuración.
+- [x] Aplicar migración de idioma a Neon `dev` con aprobación y verificar persistencia de preferencia en sesión.
+- [x] Definir acceso de empleados a órdenes asignadas mediante códigos específicos por orden, generados por la app y enviados por los canales elegidos por el dueño.
+- [x] Crear la rama Neon `dev`, aplicar la migración inicial allí y probar login/sesión/aislamiento de workspaces con PostgreSQL; `production` permanece intacta.
+- [x] Elegir Resend e implementar adaptador HTTP sin SDK ni exposición de secretos.
+- [x] Probar envío de verificación Resend a la dirección asociada a la cuenta usando `onboarding@resend.dev`.
+- [ ] Antes del lanzamiento, verificar un dominio propio para enviar correos a destinatarios distintos de la cuenta de pruebas Resend.
 
-**Criterio de cierre:** pruebas automatizadas demuestran que un usuario no puede consultar ni modificar datos de otro workspace; permisos, acceso limitado del empleado y conversiones de zona horaria funcionan según lo definido.
+**Criterio de cierre:** las pruebas con PostgreSQL validan login, sesión, preferencia de idioma persistente y aislamiento de workspaces; la verificación por email funciona en Resend test mode. Antes de producción, verificar un dominio propio para enviar a clientes.
 
 ## Fase 3 — Clientes, administradoras y propiedades
 
