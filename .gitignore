@@ -1,0 +1,39 @@
+# Dependencias y artefactos de build
+node_modules/
+dist/
+build/
+coverage/
+.next/
+out/
+.turbo/
+
+# Variables de entorno y credenciales locales
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Archivos de texto
+*.txt
+
+# Logs y archivos temporales
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.cache/
+tmp/
+temp/
+
+# Datos locales y cargas de archivos
+*.sqlite
+*.sqlite3
+*.db
+/uploads/
+/storage/
+
+# Archivos del sistema operativo y editores
+.DS_Store
+Thumbs.db

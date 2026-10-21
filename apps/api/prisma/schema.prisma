@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Foundational model only; the complete workspace and tenant schema is defined in Phase 2.
+model Workspace {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  timeZone  String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
