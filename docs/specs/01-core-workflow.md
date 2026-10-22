@@ -20,6 +20,7 @@ No es una cadena automática: cada transición requiere decisión explícita del
 - El dueño puede conversar y acordar directamente, o crear un presupuesto editable y descargable como PDF.
 - El envío por email es manual/iniciado por el dueño; este elige destinatarios. Conservar versiones, envíos y aceptación.
 - Estados acordados: **Borrador → Enviado → Aceptado / Rechazado / Vencido**. El cliente acepta mediante enlace seguro; registrar la aceptación, su fecha y la versión aceptada.
+- Cuando el dueño envía una nueva versión, los enlaces de aceptación de versiones anteriores se invalidan; las versiones y sus eventos se conservan en el historial.
 - El enlace funciona hasta el vencimiento. Si el cliente lo abre después de vencido, se le informa que debe solicitar un presupuesto nuevo; no se acepta una versión vencida.
 - El presupuesto vence a los **15 días corridos desde su envío**. Cada reenvío/versión enviada inicia su propio plazo de 15 días.
 - Una modificación después del envío crea una nueva versión y conserva la versión enviada anteriormente; no altera retroactivamente el documento recibido por el cliente.
@@ -27,6 +28,11 @@ No es una cadena automática: cada transición requiere decisión explícita del
 - Aplicar descuentos manualmente, como importe fijo o porcentaje. Todo cambio posterior de alcance o precio debe quedar registrado.
 - Un presupuesto aceptado puede convertirse en orden por acción explícita del dueño. También se permite crear orden directamente cuando ya existe acuerdo, incluso sin presupuesto. La conversión guarda una copia del alcance y precio acordados.
 - Modificar una plantilla no altera presupuestos históricos.
+
+### Envío de presupuestos
+
+- Generar el PDF en el backend; adjuntarlo al email y enviar junto al enlace seguro de aceptación.
+- El dueño selecciona explícitamente uno o más destinatarios. Registrar resultado por destinatario sin guardar tokens ni secretos.
 
 ## 3. Orden de trabajo
 
@@ -47,7 +53,7 @@ Si no se completa, registrar motivo y dejar pendiente, reprogramar o cancelar; c
 
 - Presupuestos, órdenes y facturas tienen secuencias independientes por workspace, continuas y comenzando en 1; no se reinician anualmente.
 - Mostrar cada número con prefijo y secuencia (por ejemplo, `PRE-1`, `OT-1`, `FAC-1`). La orden conserva la referencia al presupuesto si aplica; la factura referencia la orden y el presupuesto cuando corresponda.
-- El dueño configura una tasa de impuesto predeterminada para el workspace y puede modificarla para un documento. La aplicación calcula automáticamente el impuesto cuando el dueño indica que ese documento está sujeto a impuesto.
+- El dueño configura una tasa de impuesto predeterminada para el workspace y puede modificarla para un documento. La aplicación calcula automáticamente el impuesto cuando el dueño indica que ese documento está sujeto a impuesto; la base imponible es el subtotal menos el descuento.
 - Mostrar subtotal, impuesto y total; el impuesto se suma al subtotal.
 - Redondear el impuesto a dos decimales al nivel del documento.
 - Los borradores usan la configuración vigente; fijar tasa, base imponible e importe calculado al enviar el presupuesto o emitir la factura, preservando así el documento aunque cambie la configuración después.

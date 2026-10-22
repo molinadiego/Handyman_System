@@ -37,25 +37,27 @@ Plan derivado de `handyman.txt`. Marcar una casilla solo cuando el alcance esté
 
 ## Fase 3 — Clientes, administradoras y propiedades
 
-- [ ] Gestionar clientes directos, administradoras, contactos y propiedades.
-- [ ] Mantener historial de relaciones de cada propiedad sin reasignar trabajos pasados.
-- [ ] Registrar contactos temporales de acceso en las órdenes, sin exigir que sean clientes permanentes.
-- [ ] Restringir el acceso a códigos de lockbox e instrucciones sensibles.
-- [ ] Excluir datos de acceso de búsquedas generales, logs y comunicaciones automáticas.
+- [x] Añadir modelos, API y pantallas para crear/listar/editar clientes directos, administradoras y propiedades con scope de workspace.
+- [x] Mantener historial de relaciones propietario/administradora por propiedad; finalizar relaciones con fecha, sin borrar ni reasignar historia.
+- [ ] Registrar contactos temporales de acceso en las órdenes, sin exigir que sean clientes permanentes (al implementar WorkOrder).
+- [x] Cifrar lockboxes con AES-256-GCM, clave externa de 32 bytes y auditoría de cada revelación/desactivación.
+- [x] Restringir lockboxes a owner autenticado en esta fase; el acceso del empleado se habilitará mediante asignación/código de orden en la fase de WorkOrder.
+- [x] Aplicar/verificar la migración CRM/propiedades en Neon `dev`; E2E confirma aislamiento, historial y lockbox cifrado/auditado. `production` permanece intacta.
+- [x] No exponer lockbox en respuestas generales, logs ni mensajes; aplicar exclusión de búsquedas al implementar búsqueda en Fase 7.
 
-**Criterio de cierre:** se pueden consultar los historiales correctos y las pruebas de permisos confirman que solo usuarios autorizados ven datos de acceso.
+**Criterio de cierre:** pruebas E2E confirman el aislamiento por workspace, historial de relaciones y acceso autenticado/auditado a lockbox; el acceso de empleados se integrará junto a WorkOrder.
 
 ## Fase 4 — Solicitudes y presupuestos
 
-- [ ] Registrar y revisar solicitudes sin tratarlas como trabajos aceptados.
-- [ ] Crear y editar presupuestos con versiones, partidas, descuentos manuales y aceptación registrada.
-- [ ] Permitir descuentos manuales por importe fijo o porcentaje.
-- [ ] Aceptar presupuestos mediante enlace seguro; vencimiento a 15 días corridos del envío y tratamiento del enlace vencido.
-- [ ] Generar PDF y permitir envíos explícitos con destinatarios elegidos por el dueño.
-- [ ] Conservar historial de versiones, envíos y respuestas.
-- [ ] Permitir crear una orden desde un presupuesto aceptado o desde un acuerdo directo.
+- [x] Registrar y revisar solicitudes sin tratarlas como trabajos aceptados.
+- [x] Crear y editar presupuestos con versiones, partidas, descuentos manuales y aceptación registrada.
+- [x] Permitir descuentos manuales por importe fijo o porcentaje.
+- [x] Aceptar presupuestos mediante enlace seguro; vencimiento a 15 días corridos del envío y tratamiento del enlace vencido.
+- [x] Generar PDF y permitir envíos explícitos con destinatarios elegidos por el dueño.
+- [x] Conservar historial de versiones, envíos y respuestas.
+- [ ] Permitir crear una orden desde un presupuesto aceptado o desde un acuerdo directo (se implementará junto con el modelo WorkOrder en Fase 5).
 
-**Criterio de cierre:** una solicitud o presupuesto no genera automáticamente una orden o factura; las versiones anteriores permanecen consultables.
+**Criterio de cierre:** una solicitud o presupuesto no genera automáticamente una orden o factura; las versiones anteriores permanecen consultables. La conversión explícita a WorkOrder queda vinculada a la Fase 5 para evitar inventar estados de órdenes antes de implementar ese modelo.
 
 ## Fase 5 — Órdenes de trabajo, costos y agenda
 

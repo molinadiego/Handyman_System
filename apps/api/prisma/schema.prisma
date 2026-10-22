@@ -13,6 +13,60 @@ enum AuthActionPurpose {
   PASSWORD_RESET
 }
 
+enum CustomerType {
+  PERSON
+  COMPANY
+}
+
+enum PropertyRelationshipRole {
+  OWNER
+  PROPERTY_MANAGER
+}
+
+enum PropertyAccessType {
+  LOCKBOX
+  DOOR_CODE
+  ACCESS_INSTRUCTIONS
+  KEY_LOCATION
+  OTHER
+}
+
+enum EstimateStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum ServiceRequestStatus {
+  RECEIVED
+  IN_REVIEW
+  ESTIMATED
+  AGREED_DIRECTLY
+  NOT_ACCEPTED
+  CLOSED
+}
+
+enum EstimateDiscountType {
+  FIXED_AMOUNT
+  PERCENTAGE
+}
+
+enum EstimateEventType {
+  CREATED
+  VERSION_CREATED
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum EstimateCommunicationStatus {
+  SENT
+  FAILED
+}
+
 model User {
   id              String            @id @default(uuid()) @db.Uuid
   email           String            @unique @db.VarChar(254)
@@ -25,6 +79,13 @@ model User {
   workspaces      Workspace[]       @relation("WorkspaceOwner")
   sessions        AuthSession[]
   actionTokens    AuthActionToken[]
+  sensitiveDataAccessEvents SensitiveDataAccessEvent[]
+  createdPropertyAccessCredentials PropertyAccessCredential[] @relation("PropertyAccessCreator")
+  createdServiceRequests ServiceRequest[] @relation("ServiceRequestCreator")
+  serviceRequestEvents ServiceRequestEvent[] @relation("ServiceRequestEventActor")
+  createdEstimates Estimate[] @relation("EstimateCreator")
+  createdEstimateVersions EstimateVersion[] @relation("EstimateVersionCreator")
+  estimateEvents EstimateEvent[] @relation("EstimateEventActor")
 }
 
 model Workspace {
@@ -41,6 +102,11 @@ model Workspace {
   updatedAt               DateTime   @updatedAt @db.Timestamptz(3)
   owner                   User       @relation("WorkspaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
   employees               Employee[]
+  customers               Customer[]
+  propertyManagers        PropertyManager[]
+  properties              Property[]
+  serviceRequests         ServiceRequest[]
+  estimates               Estimate[]
 
   @@index([ownerUserId])
 }
@@ -88,4 +154,295 @@ model Employee {
   workspace         Workspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
 
   @@index([workspaceId, isActive])
+}
+
+model Customer {
+  id             String                   @id @default(uuid()) @db.Uuid
+  workspaceId    String                   @db.Uuid
+  type           CustomerType
+  name           String                   @db.VarChar(160)
+  companyName    String?                  @db.VarChar(160)
+  email          String?                  @db.VarChar(254)
+  phone          String?                  @db.VarChar(40)
+  notes          String?                  @db.Text
+  createdAt      DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime                 @updatedAt @db.Timestamptz(3)
+  workspace      Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  propertyLinks  PropertyRelationship[]   @relation("CustomerPropertyLinks")
+  serviceRequests ServiceRequest[]       @relation("CustomerRequests")
+  estimates      Estimate[]              @relation("CustomerEstimates")
+
+  @@unique([workspaceId, id])
+  @@index([workspaceId, name])
+  @@index([workspaceId, email])
+}
+
+model PropertyManager {
+  id             String                   @id @default(uuid()) @db.Uuid
+  workspaceId    String                   @db.Uuid
+  name           String                   @db.VarChar(160)
+  companyName    String?                  @db.VarChar(160)
+  email          String?                  @db.VarChar(254)
+  phone          String?                  @db.VarChar(40)
+  notes          String?                  @db.Text
+  createdAt      DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime                 @updatedAt @db.Timestamptz(3)
+  workspace      Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  propertyLinks  PropertyRelationship[]   @relation("ManagerPropertyLinks")
+  serviceRequests ServiceRequest[]       @relation("ManagerRequests")
+  estimates      Estimate[]              @relation("ManagerEstimates")
+
+  @@unique([workspaceId, id])
+  @@index([workspaceId, name])
+  @@index([workspaceId, email])
+}
+
+model Property {
+  id             String                   @id @default(uuid()) @db.Uuid
+  workspaceId    String                   @db.Uuid
+  addressLine1   String                   @db.VarChar(200)
+  addressLine2   String?                  @db.VarChar(200)
+  city           String                   @db.VarChar(120)
+  state          String                   @db.VarChar(80)
+  postalCode     String                   @db.VarChar(20)
+  country        String                   @default("US") @db.VarChar(2)
+  notes          String?                  @db.Text
+  createdAt      DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime                 @updatedAt @db.Timestamptz(3)
+  workspace      Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  relationships  PropertyRelationship[]
+  accessData     PropertyAccessCredential[]
+  serviceRequests ServiceRequest[]
+  estimates      Estimate[]
+
+  @@unique([workspaceId, id])
+  @@index([workspaceId, city, state])
+  @@index([workspaceId, postalCode])
+}
+
+model PropertyRelationship {
+  id                String                   @id @default(uuid()) @db.Uuid
+  workspaceId       String                   @db.Uuid
+  propertyId        String                   @db.Uuid
+  customerId        String?                  @db.Uuid
+  propertyManagerId String?                  @db.Uuid
+  role              PropertyRelationshipRole
+  startDate         DateTime                 @db.Date
+  endDate           DateTime?                @db.Date
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
+  property          Property                 @relation(fields: [workspaceId, propertyId], references: [workspaceId, id], onDelete: Restrict)
+  customer          Customer?                @relation("CustomerPropertyLinks", fields: [workspaceId, customerId], references: [workspaceId, id], onDelete: Restrict)
+  propertyManager   PropertyManager?         @relation("ManagerPropertyLinks", fields: [workspaceId, propertyManagerId], references: [workspaceId, id], onDelete: Restrict)
+
+  @@index([workspaceId, propertyId, startDate])
+  @@index([workspaceId, customerId])
+  @@index([workspaceId, propertyManagerId])
+}
+
+model PropertyAccessCredential {
+  id              String            @id @default(uuid()) @db.Uuid
+  workspaceId     String            @db.Uuid
+  propertyId      String            @db.Uuid
+  createdByUserId String            @db.Uuid
+  type            PropertyAccessType
+  label           String            @db.VarChar(120)
+  ciphertext      String            @db.Text
+  nonce           String            @db.VarChar(32)
+  authTag         String            @db.VarChar(32)
+  keyVersion      Int               @default(1)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime          @updatedAt @db.Timestamptz(3)
+  property        Property          @relation(fields: [workspaceId, propertyId], references: [workspaceId, id], onDelete: Restrict)
+  createdBy       User              @relation("PropertyAccessCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  accessEvents    SensitiveDataAccessEvent[]
+
+  @@unique([workspaceId, id])
+  @@index([workspaceId, propertyId, isActive])
+}
+
+model SensitiveDataAccessEvent {
+  id                String                    @id @default(uuid()) @db.Uuid
+  workspaceId       String                    @db.Uuid
+  credentialId      String                    @db.Uuid
+  actorUserId       String                    @db.Uuid
+  action            String                    @default("VIEW") @db.VarChar(20)
+  occurredAt        DateTime                  @default(now()) @db.Timestamptz(3)
+  credential        PropertyAccessCredential  @relation(fields: [workspaceId, credentialId], references: [workspaceId, id], onDelete: Restrict)
+  actor             User                      @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, credentialId, occurredAt])
+  @@index([actorUserId, occurredAt])
+}
+
+model ServiceRequest {
+  id                String           @id @default(uuid()) @db.Uuid
+  workspaceId       String           @db.Uuid
+  requesterName     String           @db.VarChar(160)
+  requesterEmail    String?          @db.VarChar(254)
+  requesterPhone    String?          @db.VarChar(40)
+  customerId        String?          @db.Uuid
+  propertyManagerId String?          @db.Uuid
+  propertyId        String?          @db.Uuid
+  description       String           @db.Text
+  status            ServiceRequestStatus @default(RECEIVED)
+  notes             String?          @db.Text
+  createdByUserId   String           @db.Uuid
+  createdAt         DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime         @updatedAt @db.Timestamptz(3)
+  workspace         Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  customer          Customer?        @relation("CustomerRequests", fields: [workspaceId, customerId], references: [workspaceId, id], onDelete: Restrict)
+  propertyManager   PropertyManager? @relation("ManagerRequests", fields: [workspaceId, propertyManagerId], references: [workspaceId, id], onDelete: Restrict)
+  property          Property?        @relation(fields: [workspaceId, propertyId], references: [workspaceId, id], onDelete: Restrict)
+  createdBy         User             @relation("ServiceRequestCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  estimates         Estimate[]
+  events            ServiceRequestEvent[]
+
+  @@unique([workspaceId, id])
+  @@index([workspaceId, status, createdAt])
+  @@index([workspaceId, propertyId])
+}
+
+model ServiceRequestEvent {
+  id          String               @id @default(uuid()) @db.Uuid
+  workspaceId String               @db.Uuid
+  requestId   String               @db.Uuid
+  fromStatus  ServiceRequestStatus?
+  toStatus    ServiceRequestStatus
+  actorUserId String               @db.Uuid
+  createdAt   DateTime             @default(now()) @db.Timestamptz(3)
+  request     ServiceRequest       @relation(fields: [workspaceId, requestId], references: [workspaceId, id], onDelete: Restrict)
+  actor       User                 @relation("ServiceRequestEventActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, requestId, createdAt])
+}
+
+model Estimate {
+  id                      String         @id @default(uuid()) @db.Uuid
+  workspaceId             String         @db.Uuid
+  number                  Int
+  customerId              String?        @db.Uuid
+  propertyManagerId       String?        @db.Uuid
+  propertyId              String         @db.Uuid
+  serviceRequestId        String?        @db.Uuid
+  createdByUserId         String         @db.Uuid
+  status                  EstimateStatus @default(DRAFT)
+  currentVersionNumber    Int            @default(1)
+  latestSentVersionNumber Int?
+  createdAt               DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime       @updatedAt @db.Timestamptz(3)
+  workspace               Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  customer                Customer?      @relation("CustomerEstimates", fields: [workspaceId, customerId], references: [workspaceId, id], onDelete: Restrict)
+  propertyManager         PropertyManager? @relation("ManagerEstimates", fields: [workspaceId, propertyManagerId], references: [workspaceId, id], onDelete: Restrict)
+  property                Property       @relation(fields: [workspaceId, propertyId], references: [workspaceId, id], onDelete: Restrict)
+  serviceRequest          ServiceRequest? @relation(fields: [workspaceId, serviceRequestId], references: [workspaceId, id], onDelete: Restrict)
+  createdBy               User           @relation("EstimateCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  versions                EstimateVersion[]
+  acceptanceTokens        EstimateAcceptanceToken[]
+  events                  EstimateEvent[]
+  communications          EstimateCommunication[]
+
+  @@unique([workspaceId, id])
+  @@unique([workspaceId, number])
+  @@index([workspaceId, status, updatedAt])
+}
+
+model EstimateVersion {
+  id                      String                    @id @default(uuid()) @db.Uuid
+  workspaceId             String                    @db.Uuid
+  estimateId              String                    @db.Uuid
+  versionNumber           Int
+  businessNameSnapshot    String                    @db.VarChar(160)
+  recipientNameSnapshot   String                    @db.VarChar(160)
+  recipientEmailSnapshot  String?                   @db.VarChar(254)
+  propertyAddressSnapshot String                    @db.VarChar(500)
+  scopeSnapshot           String                    @db.Text
+  subtotal                Decimal?                  @db.Decimal(12, 2)
+  discountType            EstimateDiscountType?
+  discountValue           Decimal?                  @db.Decimal(12, 4)
+  discountAmount          Decimal?                  @db.Decimal(12, 2)
+  taxable                 Boolean                   @default(false)
+  taxRateOverride         Decimal?                  @db.Decimal(7, 4)
+  taxRate                 Decimal?                  @db.Decimal(7, 4)
+  taxBase                 Decimal?                  @db.Decimal(12, 2)
+  taxAmount               Decimal?                  @db.Decimal(12, 2)
+  total                   Decimal?                  @db.Decimal(12, 2)
+  sentAt                  DateTime?                 @db.Timestamptz(3)
+  expiresAt               DateTime?                 @db.Timestamptz(3)
+  acceptedAt              DateTime?                 @db.Timestamptz(3)
+  createdByUserId         String                    @db.Uuid
+  createdAt               DateTime                  @default(now()) @db.Timestamptz(3)
+  estimate                Estimate                  @relation(fields: [workspaceId, estimateId], references: [workspaceId, id], onDelete: Restrict)
+  createdBy               User                      @relation("EstimateVersionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  lines                   EstimateLine[]
+  acceptanceTokens        EstimateAcceptanceToken[]
+  events                  EstimateEvent[]
+  communications          EstimateCommunication[]
+
+  @@unique([workspaceId, id])
+  @@unique([workspaceId, estimateId, versionNumber])
+  @@index([workspaceId, estimateId, createdAt])
+}
+
+model EstimateLine {
+  id                String          @id @default(uuid()) @db.Uuid
+  workspaceId       String          @db.Uuid
+  estimateVersionId String          @db.Uuid
+  position          Int
+  description       String          @db.VarChar(500)
+  quantity          Decimal         @default(1) @db.Decimal(10, 2)
+  unitPrice         Decimal?        @db.Decimal(12, 2)
+  lineTotal         Decimal?        @db.Decimal(12, 2)
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  estimateVersion   EstimateVersion @relation(fields: [workspaceId, estimateVersionId], references: [workspaceId, id], onDelete: Restrict)
+
+  @@unique([workspaceId, estimateVersionId, position])
+  @@index([workspaceId, estimateVersionId])
+}
+
+model EstimateAcceptanceToken {
+  id                String          @id @default(uuid()) @db.Uuid
+  workspaceId       String          @db.Uuid
+  estimateId        String          @db.Uuid
+  estimateVersionId String          @db.Uuid
+  tokenHash         String          @unique @db.Char(64)
+  expiresAt         DateTime        @db.Timestamptz(3)
+  consumedAt        DateTime?       @db.Timestamptz(3)
+  createdAt         DateTime        @default(now()) @db.Timestamptz(3)
+  estimate          Estimate        @relation(fields: [workspaceId, estimateId], references: [workspaceId, id], onDelete: Restrict)
+  version           EstimateVersion @relation(fields: [workspaceId, estimateVersionId], references: [workspaceId, id], onDelete: Restrict)
+
+  @@index([workspaceId, estimateId, estimateVersionId, expiresAt])
+}
+
+model EstimateEvent {
+  id                String            @id @default(uuid()) @db.Uuid
+  workspaceId       String            @db.Uuid
+  estimateId        String            @db.Uuid
+  estimateVersionId String?           @db.Uuid
+  type              EstimateEventType
+  actorUserId       String?           @db.Uuid
+  occurredAt        DateTime          @default(now()) @db.Timestamptz(3)
+  metadata          Json?
+  estimate          Estimate          @relation(fields: [workspaceId, estimateId], references: [workspaceId, id], onDelete: Restrict)
+  version           EstimateVersion?  @relation(fields: [workspaceId, estimateVersionId], references: [workspaceId, id], onDelete: Restrict)
+  actor             User?             @relation("EstimateEventActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, estimateId, occurredAt])
+}
+
+model EstimateCommunication {
+  id                String                      @id @default(uuid()) @db.Uuid
+  workspaceId       String                      @db.Uuid
+  estimateId        String                      @db.Uuid
+  estimateVersionId String                      @db.Uuid
+  channel           String                      @default("EMAIL") @db.VarChar(20)
+  recipients        Json
+  status            EstimateCommunicationStatus
+  failureCode       String?                     @db.VarChar(80)
+  createdAt         DateTime                    @default(now()) @db.Timestamptz(3)
+  estimate          Estimate                    @relation(fields: [workspaceId, estimateId], references: [workspaceId, id], onDelete: Restrict)
+  version           EstimateVersion             @relation(fields: [workspaceId, estimateVersionId], references: [workspaceId, id], onDelete: Restrict)
+
+  @@index([workspaceId, estimateId, createdAt])
 }

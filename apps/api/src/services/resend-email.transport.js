@@ -45,7 +45,27 @@ export class ResendEmailTransport {
     });
   }
 
-  async send({ to, subject, text, html }) {
+  async sendEstimateEmail({ to, estimateNumber, acceptanceLink, pdfBuffer, language = 'en' }) {
+    const safeLink = escapeHtml(acceptanceLink);
+    const isSpanish = language === 'es';
+    return this.send({
+      to,
+      subject: isSpanish ? `Presupuesto PRE-${estimateNumber} de Handy System` : `Handy System estimate PRE-${estimateNumber}`,
+      text: isSpanish
+        ? `Adjuntamos el presupuesto PRE-${estimateNumber}. Revísalo y responde en este enlace: ${acceptanceLink}`
+        : `Your estimate PRE-${estimateNumber} is attached. Review and respond using this link: ${acceptanceLink}`,
+      html: isSpanish
+        ? `<p>Adjuntamos el presupuesto PRE-${estimateNumber}.</p><p><a href="${safeLink}">Revisar y responder al presupuesto</a></p>`
+        : `<p>Your estimate PRE-${estimateNumber} is attached.</p><p><a href="${safeLink}">Review and respond to the estimate</a></p>`,
+      attachments: [{
+        filename: `PRE-${estimateNumber}.pdf`,
+        content: pdfBuffer.toString('base64'),
+        content_type: 'application/pdf',
+      }],
+    });
+  }
+
+  async send({ to, subject, text, html, attachments }) {
     if (!this.isConfigured()) {
       throw new AppError('EMAIL_PROVIDER_NOT_CONFIGURED', 'Email delivery is not configured.', 503);
     }
@@ -58,7 +78,14 @@ export class ResendEmailTransport {
           Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ from: this.from, to: [to], subject, text, html }),
+        body: JSON.stringify({
+          from: this.from,
+          to: [to],
+          subject,
+          text,
+          html,
+          ...(attachments ? { attachments } : {}),
+        }),
         signal: AbortSignal.timeout(10_000),
       });
     } catch {

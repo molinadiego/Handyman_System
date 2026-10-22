@@ -25,4 +25,11 @@ export class EmailService {
     }
     return this.transport.sendPasswordResetEmail(message);
   }
+
+  async sendEstimateEmail(message) {
+    if (!this.transport) {
+      throw new AppError('EMAIL_PROVIDER_NOT_CONFIGURED', 'Email delivery is not configured.', 503);
+    }
+    return this.transport.sendEstimateEmail(message);
+  }
 }

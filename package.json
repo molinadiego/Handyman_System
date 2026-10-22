@@ -18,5 +18,8 @@
   "dependencies": {
     "@neon/config": "^1.9.3",
     "@neon/env": "^1.6.4"
+  },
+  "devDependencies": {
+    "rollup": "^4.64.12"
   }
 }

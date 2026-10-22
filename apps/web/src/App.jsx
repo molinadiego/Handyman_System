@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { EstimateAcceptancePage, EstimatesPage, ServiceRequestsPage } from './RequestEstimatePages.jsx';
 
 const copy = {
   en: {
@@ -38,6 +39,107 @@ const copy = {
     openWorkspace: 'Open workspace',
     backToWorkspaces: 'Back to workspaces',
     workspaceDetail: 'Workspace is ready. Customer and property management is the next module.',
+    customers: 'Customers',
+    propertyManagers: 'Property managers',
+    properties: 'Properties',
+    requests: 'Service requests',
+    estimates: 'Estimates',
+    addRequest: 'Add request',
+    requestName: 'Requester name',
+    requestDescription: 'Requested work',
+    requestStatus: 'Request status',
+    addEstimate: 'Create estimate',
+    estimateScope: 'Scope summary',
+    estimateRecipientType: 'Bill to',
+    taxable: 'This document is taxable',
+    taxRate: 'Tax rate (%)',
+    discountType: 'Discount type',
+    noDiscount: 'No discount',
+    fixedDiscount: 'Fixed amount',
+    percentageDiscount: 'Percentage',
+    discountValue: 'Discount value',
+    lineItems: 'Line items',
+    lineDescription: 'Description',
+    quantity: 'Quantity',
+    unitPrice: 'Unit price (USD)',
+    addLine: 'Add line item',
+    removeLine: 'Remove',
+    saveDraft: 'Save draft',
+    editEstimate: 'Edit draft / create version',
+    downloadPdf: 'Download PDF',
+    sendEstimate: 'Send estimate',
+    emailRecipients: 'Email recipients (comma-separated)',
+    acceptEstimate: 'Accept estimate',
+    estimateLinkTitle: 'Review your estimate',
+    estimateAccepted: 'Estimate accepted. Thank you.',
+    estimateSendSummary: 'Email attempts: {sent} sent, {failed} failed.',
+    statusReceived: 'Received',
+    statusInReview: 'In review',
+    statusEstimated: 'Estimated',
+    statusAgreedDirect: 'Agreed directly',
+    statusNotAccepted: 'Not accepted',
+    statusClosed: 'Closed',
+    requestBillTo: 'Associated party',
+    none: 'None',
+    selectParty: 'Select a record',
+    selectProperty: 'Select a property',
+    estimateDraft: 'Draft',
+    estimateSent: 'Sent',
+    estimateAcceptedStatus: 'Accepted',
+    estimateRejected: 'Rejected',
+    estimateExpired: 'Expired',
+    estimateSaved: 'Estimate draft saved.',
+    linkedRequest: 'Related request',
+    versionHistory: 'Version history',
+    versionLabel: 'Version',
+    estimateAcceptedWithNumber: 'Estimate {number} accepted. Thank you.',
+    estimateAcceptanceInstructions: 'Confirm below to record your acceptance of the latest estimate version.',
+    invalidRequestStatus: 'Choose a valid request status.',
+    propertyRequired: 'Select a property.',
+    lineRequired: 'Add at least one line item.',
+    recipientRequired: 'Select at least one email recipient.',
+    estimateLinkInvalid: 'This estimate link is invalid or expired. Contact the business for an updated estimate.',
+    taxRateRequired: 'Set a tax rate for this taxable estimate.',
+    estimatePriceRequired: 'Enter a price for every estimate line before sending.',
+    estimateLocked: 'This estimate can no longer be changed.',
+    invalidEstimateRecipient: 'Choose exactly one customer or property manager.',
+    addCustomer: 'Add customer',
+    addPropertyManager: 'Add property manager',
+    addProperty: 'Add property',
+    person: 'Person',
+    company: 'Company',
+    name: 'Name',
+    companyName: 'Company name',
+    phone: 'Phone',
+    notes: 'Notes',
+    addressLine1: 'Street address',
+    addressLine2: 'Address line 2',
+    city: 'City',
+    state: 'State',
+    postalCode: 'ZIP code',
+    relationshipHistory: 'Property relationship history',
+    addRelationship: 'Add relationship',
+    relationshipRole: 'Relationship type',
+    propertyOwner: 'Owner/customer',
+    propertyManager: 'Property manager',
+    linkedParty: 'Related customer or manager',
+    startDate: 'Effective from',
+    endDate: 'Effective until',
+    endRelationship: 'End relationship',
+    accessCredentials: 'Property access credentials',
+    addAccessCredential: 'Add access credential',
+    credentialType: 'Access type',
+    credentialLabel: 'Label',
+    credentialValue: 'Sensitive access value',
+    lockbox: 'Lockbox',
+    doorCode: 'Door code',
+    accessInstructions: 'Access instructions',
+    keyLocation: 'Key location',
+    otherAccess: 'Other',
+    reveal: 'Reveal value',
+    hideValue: 'Hide value',
+    accessWarning: 'Access values are encrypted and audited. Do not put codes in general notes.',
+    lockboxKeyMissing: 'Lockbox encryption is not configured. Ask the owner to set the local encryption key.',
     workspaceName: 'Business name',
     timeZone: 'IANA time zone (for example, America/Chicago)',
     createWorkspace: 'Create workspace',
@@ -52,6 +154,14 @@ const copy = {
     missingToken: 'This link is missing its token. Request a new one.',
     loadingWorkspaces: 'Loading workspaces…',
     noWorkspaces: 'You do not have a workspace yet.',
+    noRecords: 'No records yet.',
+    editRecord: 'Edit record',
+    updateRecord: 'Save changes',
+    cancelEdit: 'Cancel edit',
+    deactivate: 'Deactivate',
+    customerType: 'Customer type',
+    country: 'Country code',
+    backToProperties: 'Back to properties',
     emailNotConfigured: 'Email delivery is not configured yet.',
     emailDeliveryFailed: 'The email could not be sent. Check the sender configuration.',
     invalidCredentials: 'Email or password is incorrect.',
@@ -61,6 +171,11 @@ const copy = {
     invalidPassword: 'Password must be 12–128 characters.',
     invalidTimeZone: 'Enter a valid IANA time zone.',
     invalidWorkspaceName: 'Workspace name must be 2–160 characters.',
+    invalidCustomerType: 'Choose person or company.',
+    invalidPropertyRelationship: 'Choose exactly one customer or property manager.',
+    invalidRelationshipDates: 'The end date cannot be before the start date.',
+    invalidAccessType: 'Choose a supported access type.',
+    accessValueUnavailable: 'The access value is unavailable. Contact the owner.',
   },
   es: {
     eyebrow: 'Tu negocio, en orden',
@@ -99,6 +214,107 @@ const copy = {
     openWorkspace: 'Abrir espacio',
     backToWorkspaces: 'Volver a espacios',
     workspaceDetail: 'El espacio está listo. La gestión de clientes y propiedades será el siguiente módulo.',
+    customers: 'Clientes',
+    propertyManagers: 'Administradoras',
+    properties: 'Propiedades',
+    requests: 'Solicitudes de servicio',
+    estimates: 'Presupuestos',
+    addRequest: 'Agregar solicitud',
+    requestName: 'Nombre de quien solicita',
+    requestDescription: 'Trabajo solicitado',
+    requestStatus: 'Estado de solicitud',
+    addEstimate: 'Crear presupuesto',
+    estimateScope: 'Resumen del alcance',
+    estimateRecipientType: 'Facturar a',
+    taxable: 'Este documento está sujeto a impuesto',
+    taxRate: 'Tasa de impuesto (%)',
+    discountType: 'Tipo de descuento',
+    noDiscount: 'Sin descuento',
+    fixedDiscount: 'Importe fijo',
+    percentageDiscount: 'Porcentaje',
+    discountValue: 'Valor del descuento',
+    lineItems: 'Partidas',
+    lineDescription: 'Descripción',
+    quantity: 'Cantidad',
+    unitPrice: 'Precio unitario (USD)',
+    addLine: 'Agregar partida',
+    removeLine: 'Quitar',
+    saveDraft: 'Guardar borrador',
+    editEstimate: 'Editar borrador / crear versión',
+    downloadPdf: 'Descargar PDF',
+    sendEstimate: 'Enviar presupuesto',
+    emailRecipients: 'Destinatarios email (separados por coma)',
+    acceptEstimate: 'Aceptar presupuesto',
+    estimateLinkTitle: 'Revisa tu presupuesto',
+    estimateAccepted: 'Presupuesto aceptado. Gracias.',
+    estimateSendSummary: 'Intentos de envío: {sent} enviados, {failed} fallidos.',
+    statusReceived: 'Recibida',
+    statusInReview: 'En revisión',
+    statusEstimated: 'Presupuestada',
+    statusAgreedDirect: 'Acordada directamente',
+    statusNotAccepted: 'No aceptada',
+    statusClosed: 'Cerrada',
+    requestBillTo: 'Parte relacionada',
+    none: 'Ninguno',
+    selectParty: 'Selecciona un registro',
+    selectProperty: 'Selecciona una propiedad',
+    estimateDraft: 'Borrador',
+    estimateSent: 'Enviado',
+    estimateAcceptedStatus: 'Aceptado',
+    estimateRejected: 'Rechazado',
+    estimateExpired: 'Vencido',
+    estimateSaved: 'Se guardó el borrador del presupuesto.',
+    linkedRequest: 'Solicitud relacionada',
+    versionHistory: 'Historial de versiones',
+    versionLabel: 'Versión',
+    estimateAcceptedWithNumber: 'Presupuesto {number} aceptado. Gracias.',
+    estimateAcceptanceInstructions: 'Confirma abajo para registrar tu aceptación de la última versión del presupuesto.',
+    invalidRequestStatus: 'Elige un estado de solicitud válido.',
+    propertyRequired: 'Selecciona una propiedad.',
+    lineRequired: 'Agrega al menos una partida.',
+    recipientRequired: 'Selecciona al menos un destinatario de email.',
+    estimateLinkInvalid: 'El enlace no es válido o venció. Contacta al negocio para pedir un presupuesto actualizado.',
+    taxRateRequired: 'Configura la tasa de impuesto para este presupuesto gravable.',
+    estimatePriceRequired: 'Completa el precio de cada partida antes de enviar.',
+    estimateLocked: 'Este presupuesto ya no se puede cambiar.',
+    invalidEstimateRecipient: 'Elige exactamente un cliente o una administradora.',
+    addCustomer: 'Agregar cliente',
+    addPropertyManager: 'Agregar administradora',
+    addProperty: 'Agregar propiedad',
+    person: 'Persona',
+    company: 'Empresa',
+    name: 'Nombre',
+    companyName: 'Nombre de la empresa',
+    phone: 'Teléfono',
+    notes: 'Notas',
+    addressLine1: 'Dirección',
+    addressLine2: 'Dirección adicional',
+    city: 'Ciudad',
+    state: 'Estado',
+    postalCode: 'Código postal',
+    relationshipHistory: 'Historial de relaciones de la propiedad',
+    addRelationship: 'Agregar relación',
+    relationshipRole: 'Tipo de relación',
+    propertyOwner: 'Propietario/cliente',
+    propertyManager: 'Administradora',
+    linkedParty: 'Cliente o administradora relacionada',
+    startDate: 'Vigente desde',
+    endDate: 'Vigente hasta',
+    endRelationship: 'Finalizar relación',
+    accessCredentials: 'Datos de acceso a la propiedad',
+    addAccessCredential: 'Agregar dato de acceso',
+    credentialType: 'Tipo de acceso',
+    credentialLabel: 'Etiqueta',
+    credentialValue: 'Dato sensible de acceso',
+    lockbox: 'Lockbox',
+    doorCode: 'Código de puerta',
+    accessInstructions: 'Instrucciones de acceso',
+    keyLocation: 'Ubicación de la llave',
+    otherAccess: 'Otro',
+    reveal: 'Mostrar dato',
+    hideValue: 'Ocultar dato',
+    accessWarning: 'Los datos de acceso se cifran y auditan. No pongas códigos en las notas generales.',
+    lockboxKeyMissing: 'El cifrado de lockbox no está configurado. El dueño debe preparar la clave local.',
     workspaceName: 'Nombre del negocio',
     timeZone: 'Zona horaria IANA (por ejemplo, America/Chicago)',
     createWorkspace: 'Crear espacio de trabajo',
@@ -113,6 +329,14 @@ const copy = {
     missingToken: 'Falta el token del enlace. Solicita uno nuevo.',
     loadingWorkspaces: 'Cargando espacios de trabajo…',
     noWorkspaces: 'Todavía no tienes un espacio de trabajo.',
+    noRecords: 'Todavía no hay registros.',
+    editRecord: 'Editar registro',
+    updateRecord: 'Guardar cambios',
+    cancelEdit: 'Cancelar edición',
+    deactivate: 'Desactivar',
+    customerType: 'Tipo de cliente',
+    country: 'Código de país',
+    backToProperties: 'Volver a propiedades',
     emailNotConfigured: 'El envío de correos todavía no está configurado.',
     emailDeliveryFailed: 'No se pudo enviar el correo. Revisa la configuración del remitente.',
     invalidCredentials: 'El correo o la contraseña no son correctos.',
@@ -122,6 +346,11 @@ const copy = {
     invalidPassword: 'La contraseña debe tener entre 12 y 128 caracteres.',
     invalidTimeZone: 'Ingresa una zona horaria IANA válida.',
     invalidWorkspaceName: 'El nombre del negocio debe tener entre 2 y 160 caracteres.',
+    invalidCustomerType: 'Elige persona o empresa.',
+    invalidPropertyRelationship: 'Elige exactamente un cliente o una administradora.',
+    invalidRelationshipDates: 'La fecha final no puede ser anterior a la inicial.',
+    invalidAccessType: 'Elige un tipo de acceso válido.',
+    accessValueUnavailable: 'El dato de acceso no está disponible. Contacta al dueño.',
   },
 };
 
@@ -174,8 +403,31 @@ function apiError(body, text) {
       return text.invalidTimeZone;
     case 'INVALID_WORKSPACE_NAME':
       return text.invalidWorkspaceName;
+    case 'INVALID_CUSTOMER_TYPE':
+      return text.invalidCustomerType;
+    case 'INVALID_PROPERTY_RELATIONSHIP':
+      return text.invalidPropertyRelationship;
+    case 'INVALID_RELATIONSHIP_DATES':
+      return text.invalidRelationshipDates;
+    case 'INVALID_ACCESS_TYPE':
+      return text.invalidAccessType;
+    case 'ACCESS_VALUE_UNAVAILABLE':
+      return text.accessValueUnavailable;
+    case 'LOCKBOX_KEY_NOT_CONFIGURED':
+    case 'LOCKBOX_KEY_INVALID':
+      return text.lockboxKeyMissing;
     case 'INVALID_OR_EXPIRED_TOKEN':
       return text.invalidLink;
+    case 'ESTIMATE_LINK_INVALID':
+      return text.estimateLinkInvalid;
+    case 'TAX_RATE_REQUIRED':
+      return text.taxRateRequired;
+    case 'INCOMPLETE_ESTIMATE_PRICE':
+      return text.estimatePriceRequired;
+    case 'ESTIMATE_LOCKED':
+      return text.estimateLocked;
+    case 'INVALID_ESTIMATE_RECIPIENT':
+      return text.invalidEstimateRecipient;
     default:
       if (body?.error?.code?.startsWith('EMAIL_PROVIDER_HTTP_')) return text.emailDeliveryFailed;
       return text.genericError;
@@ -486,6 +738,331 @@ function WorkspacesPage({ text }) {
   );
 }
 
+function CrmCollectionPage({ text, workspaceId, module }) {
+  const [items, setItems] = useState([]);
+  const [notice, setNotice] = useState({ type: 'pending', message: text.loadingWorkspaces });
+  const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const endpoint = `/api/workspaces/${encodeURIComponent(workspaceId)}/${module}`;
+  const title = module === 'customers' ? text.customers : module === 'property-managers' ? text.propertyManagers : text.properties;
+  const createLabel = module === 'customers' ? text.addCustomer : module === 'property-managers' ? text.addPropertyManager : text.addProperty;
+
+  async function refresh() {
+    const response = await fetch(endpoint);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(apiError(body, text));
+    setItems(body.data ?? []);
+    setNotice(null);
+  }
+
+  useEffect(() => {
+    refresh().catch((error) => setNotice({ type: 'error', message: error.message || text.genericError }));
+  }, [workspaceId, module]);
+
+  async function submit(event) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const data = Object.fromEntries(new FormData(formElement).entries());
+    setBusy(true);
+    setNotice(null);
+    try {
+      const { response, body } = editing
+        ? await patchJson(`${endpoint}/${encodeURIComponent(editing.id)}`, data)
+        : await postJson(endpoint, data);
+      if (!response.ok) throw new Error(apiError(body, text));
+      formElement.reset();
+      setEditing(null);
+      await refresh();
+    } catch (error) {
+      setNotice({ type: 'error', message: error.message || text.genericError });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="auth-card workspace-card">
+      <p className="eyebrow">HANDY SYSTEM</p>
+      <h1 className="auth-title">{title}</h1>
+      <p className="form-footnote"><a href={`/workspaces/${encodeURIComponent(workspaceId)}`}>{text.backToWorkspaces}</a></p>
+      {notice && <Notice notice={notice} />}
+      <div className="crm-list">
+        {items.map((item) => {
+          const label = item.name || item.addressLine1;
+          const subtitle = module === 'properties'
+            ? `${item.city}, ${item.state} ${item.postalCode}`
+            : [item.companyName, item.email, item.phone].filter(Boolean).join(' · ');
+          return (
+            <article className="crm-row" key={item.id}>
+              <div><strong>{label}</strong>{subtitle && <span>{subtitle}</span>}</div>
+              {module === 'properties' && (
+                <a className="secondary-link" href={`/workspaces/${encodeURIComponent(workspaceId)}/properties/${encodeURIComponent(item.id)}`}>
+                  {text.openWorkspace}
+                </a>
+              )}
+              <button className="secondary-button" type="button" onClick={() => { setEditing(item); setNotice(null); }}>
+                {text.editRecord}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      {items.length === 0 && !notice && <p className="form-footnote">{text.noRecords}</p>}
+      <form className="auth-form crm-form" key={editing?.id ?? 'new'} onSubmit={submit}>
+        <h2>{editing ? text.editRecord : createLabel}</h2>
+        {module === 'customers' && (
+          <label>{text.customerType}
+            <select name="type" defaultValue={editing?.type ?? 'PERSON'} required>
+              <option value="PERSON">{text.person}</option>
+              <option value="COMPANY">{text.company}</option>
+            </select>
+          </label>
+        )}
+        <label>{module === 'properties' ? text.addressLine1 : text.name}
+          <input name={module === 'properties' ? 'addressLine1' : 'name'} defaultValue={module === 'properties' ? editing?.addressLine1 ?? '' : editing?.name ?? ''} maxLength={module === 'properties' ? 200 : 160} required />
+        </label>
+        {module === 'properties' ? (
+          <>
+            <label>{text.addressLine2}<input name="addressLine2" defaultValue={editing?.addressLine2 ?? ''} maxLength="200" /></label>
+            <div className="form-grid">
+              <label>{text.city}<input name="city" defaultValue={editing?.city ?? ''} maxLength="120" required /></label>
+              <label>{text.state}<input name="state" defaultValue={editing?.state ?? ''} maxLength="80" required /></label>
+            </div>
+            <div className="form-grid">
+              <label>{text.postalCode}<input name="postalCode" defaultValue={editing?.postalCode ?? ''} maxLength="20" required /></label>
+              <label>{text.country}<input name="country" defaultValue={editing?.country ?? 'US'} maxLength="2" required /></label>
+            </div>
+          </>
+        ) : (
+          <>
+            <label>{text.companyName}<input name="companyName" defaultValue={editing?.companyName ?? ''} maxLength="160" /></label>
+            <div className="form-grid">
+              <label>{text.email}<input name="email" type="email" defaultValue={editing?.email ?? ''} maxLength="254" /></label>
+              <label>{text.phone}<input name="phone" type="tel" defaultValue={editing?.phone ?? ''} maxLength="40" /></label>
+            </div>
+          </>
+        )}
+        <label>{text.notes}<textarea name="notes" defaultValue={editing?.notes ?? ''} rows="3" maxLength="5000" /></label>
+        <div className="form-actions">
+          <button className="primary-link" type="submit" disabled={busy}>{busy ? text.saving : editing ? text.updateRecord : createLabel}</button>
+          {editing && <button className="secondary-button" type="button" onClick={() => setEditing(null)}>{text.cancelEdit}</button>}
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function PropertyDetailPage({ text, workspaceId, propertyId }) {
+  const [property, setProperty] = useState(null);
+  const [relationships, setRelationships] = useState([]);
+  const [credentials, setCredentials] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [partyType, setPartyType] = useState('OWNER');
+  const [revealed, setRevealed] = useState(null);
+  const [notice, setNotice] = useState({ type: 'pending', message: text.loadingWorkspaces });
+  const [busy, setBusy] = useState(false);
+  const base = `/api/workspaces/${encodeURIComponent(workspaceId)}`;
+
+  async function requestData(url) {
+    const response = await fetch(url);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(apiError(body, text));
+    return body.data;
+  }
+
+  async function refresh() {
+    const [propertyData, relationshipData, credentialData, customerData, managerData] = await Promise.all([
+      requestData(`${base}/properties/${encodeURIComponent(propertyId)}`),
+      requestData(`${base}/properties/${encodeURIComponent(propertyId)}/relationships`),
+      requestData(`${base}/properties/${encodeURIComponent(propertyId)}/access-credentials`),
+      requestData(`${base}/customers`),
+      requestData(`${base}/property-managers`),
+    ]);
+    setProperty(propertyData);
+    setRelationships(relationshipData);
+    setCredentials(credentialData);
+    setCustomers(customerData);
+    setManagers(managerData);
+    setNotice(null);
+  }
+
+  useEffect(() => {
+    refresh().catch((error) => setNotice({ type: 'error', message: error.message || text.genericError }));
+  }, [workspaceId, propertyId]);
+
+  async function addRelationship(event) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const values = new FormData(formElement);
+    const partyId = values.get('partyId');
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+    const body = {
+      startDate: values.get('startDate'),
+      ...(partyType === 'OWNER' ? { customerId: partyId } : { propertyManagerId: partyId }),
+    };
+    setBusy(true);
+    try {
+      const { response, body: responseBody } = await postJson(
+        `${base}/properties/${encodeURIComponent(propertyId)}/relationships`,
+        body,
+      );
+      if (!response.ok) throw new Error(apiError(responseBody, text));
+      formElement.reset();
+      formElement.elements.startDate.value = today;
+      await refresh();
+    } catch (error) {
+      setNotice({ type: 'error', message: error.message || text.genericError });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function endRelationship(relationshipId) {
+    const endDate = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+    const { response, body } = await postJson(
+      `${base}/properties/${encodeURIComponent(propertyId)}/relationships/${encodeURIComponent(relationshipId)}/end`,
+      { endDate },
+    );
+    if (!response.ok) {
+      setNotice({ type: 'error', message: apiError(body, text) });
+      return;
+    }
+    await refresh();
+  }
+
+  async function addCredential(event) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const { response, body } = await postJson(
+        `${base}/properties/${encodeURIComponent(propertyId)}/access-credentials`,
+        Object.fromEntries(new FormData(formElement).entries()),
+      );
+      if (!response.ok) throw new Error(apiError(body, text));
+      formElement.reset();
+      await refresh();
+    } catch (error) {
+      setNotice({ type: 'error', message: error.message || text.genericError });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function revealCredential(credentialId) {
+    setNotice(null);
+    const { response, body } = await postJson(
+      `${base}/properties/${encodeURIComponent(propertyId)}/access-credentials/${encodeURIComponent(credentialId)}/reveal`,
+      {},
+    );
+    if (!response.ok) {
+      setNotice({ type: 'error', message: apiError(body, text) });
+      return;
+    }
+    setRevealed(body.data);
+  }
+
+  async function deactivateCredential(credentialId) {
+    const { response, body } = await postJson(
+      `${base}/properties/${encodeURIComponent(propertyId)}/access-credentials/${encodeURIComponent(credentialId)}/deactivate`,
+      {},
+    );
+    if (!response.ok) {
+      setNotice({ type: 'error', message: apiError(body, text) });
+      return;
+    }
+    if (revealed?.id === credentialId) setRevealed(null);
+    await refresh();
+  }
+
+  if (!property && !notice) return null;
+  const parties = partyType === 'OWNER' ? customers : managers;
+
+  return (
+    <section className="auth-card workspace-card">
+      <p className="eyebrow">HANDY SYSTEM</p>
+      <p className="form-footnote"><a href={`/workspaces/${encodeURIComponent(workspaceId)}/properties`}>{text.backToProperties}</a></p>
+      {notice && <Notice notice={notice} />}
+      {property && (
+        <>
+          <h1 className="auth-title">{property.addressLine1}</h1>
+          <p className="workspace-time-zone">{property.city}, {property.state} {property.postalCode}</p>
+
+          <section className="crm-section">
+            <h2>{text.relationshipHistory}</h2>
+            {relationships.map((relationship) => (
+              <article className="crm-row" key={relationship.id}>
+                <div>
+                  <strong>{relationship.customer?.name ?? relationship.propertyManager?.name}</strong>
+                  <span>{relationship.role === 'OWNER' ? text.propertyOwner : text.propertyManager} · {relationship.startDate.slice(0, 10)}{relationship.endDate ? ` – ${relationship.endDate.slice(0, 10)}` : ''}</span>
+                </div>
+                {!relationship.endDate && (
+                  <button className="secondary-button" type="button" onClick={() => endRelationship(relationship.id)}>
+                    {text.endRelationship}
+                  </button>
+                )}
+              </article>
+            ))}
+            <form className="auth-form crm-form" onSubmit={addRelationship}>
+              <h3>{text.addRelationship}</h3>
+              <label>{text.relationshipRole}
+                <select value={partyType} onChange={(event) => setPartyType(event.target.value)}>
+                  <option value="OWNER">{text.propertyOwner}</option>
+                  <option value="PROPERTY_MANAGER">{text.propertyManager}</option>
+                </select>
+              </label>
+              <label>{text.linkedParty}
+                <select name="partyId" required defaultValue="">
+                  <option value="" disabled>{text.selectParty}</option>
+                  {parties.map((party) => <option key={party.id} value={party.id}>{party.name}</option>)}
+                </select>
+              </label>
+              <label>{text.startDate}<input name="startDate" type="date" required defaultValue={new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10)} /></label>
+              <button className="primary-link" type="submit" disabled={busy}>{text.addRelationship}</button>
+            </form>
+          </section>
+
+          <section className="crm-section">
+            <h2>{text.accessCredentials}</h2>
+            <p className="form-footnote">{text.accessWarning}</p>
+            {credentials.map((credential) => (
+              <article className="crm-row" key={credential.id}>
+                <div><strong>{credential.label}</strong><span>{text[credential.type] ?? credential.type}</span></div>
+                {revealed?.id === credential.id ? (
+                  <span className="revealed-value">{revealed.value}</span>
+                ) : (
+                  <button className="secondary-button" type="button" onClick={() => revealCredential(credential.id)}>{text.reveal}</button>
+                )}
+                {revealed?.id === credential.id && (
+                  <button className="secondary-button" type="button" onClick={() => setRevealed(null)}>{text.hideValue}</button>
+                )}
+                <button className="secondary-button" type="button" onClick={() => deactivateCredential(credential.id)}>{text.deactivate}</button>
+              </article>
+            ))}
+            <form className="auth-form crm-form" onSubmit={addCredential}>
+              <h3>{text.addAccessCredential}</h3>
+              <label>{text.credentialType}
+                <select name="type" defaultValue="LOCKBOX" required>
+                  <option value="LOCKBOX">{text.lockbox}</option>
+                  <option value="DOOR_CODE">{text.doorCode}</option>
+                  <option value="ACCESS_INSTRUCTIONS">{text.accessInstructions}</option>
+                  <option value="KEY_LOCATION">{text.keyLocation}</option>
+                  <option value="OTHER">{text.otherAccess}</option>
+                </select>
+              </label>
+              <label>{text.credentialLabel}<input name="label" maxLength="120" required /></label>
+              <label>{text.credentialValue}<input name="value" type="password" maxLength="2048" autoComplete="off" required /></label>
+              <button className="primary-link" type="submit" disabled={busy}>{text.addAccessCredential}</button>
+            </form>
+          </section>
+        </>
+      )}
+    </section>
+  );
+}
+
 function WorkspaceDetailPage({ text, workspaceId }) {
   const [workspace, setWorkspace] = useState(null);
   const [notice, setNotice] = useState({ type: 'pending', message: text.loadingWorkspaces });
@@ -519,6 +1096,13 @@ function WorkspaceDetailPage({ text, workspaceId }) {
           <h1 className="auth-title">{workspace.name}</h1>
           <p className="workspace-time-zone">{workspace.timeZone}</p>
           <p className="description workspace-description">{text.workspaceDetail}</p>
+          <nav className="workspace-module-links" aria-label={text.workspaceDetail}>
+            <a className="secondary-link" href={`/workspaces/${encodeURIComponent(workspace.id)}/customers`}>{text.customers}</a>
+            <a className="secondary-link" href={`/workspaces/${encodeURIComponent(workspace.id)}/property-managers`}>{text.propertyManagers}</a>
+            <a className="secondary-link" href={`/workspaces/${encodeURIComponent(workspace.id)}/properties`}>{text.properties}</a>
+            <a className="secondary-link" href={`/workspaces/${encodeURIComponent(workspace.id)}/requests`}>{text.requests}</a>
+            <a className="secondary-link" href={`/workspaces/${encodeURIComponent(workspace.id)}/estimates`}>{text.estimates}</a>
+          </nav>
           <a className="secondary-link" href="/workspaces">{text.backToWorkspaces}</a>
         </>
       )}
@@ -589,7 +1173,13 @@ export function App() {
   const text = copy[language];
   const route = window.location.pathname.replace(/\/+$/u, '') || '/';
   const workspaceMatch = route.match(/^\/workspaces\/([^/]+)$/u);
-  const needsOwnerSession = route === '/workspaces' || route === '/settings' || Boolean(workspaceMatch);
+  const propertyDetailMatch = route.match(/^\/workspaces\/([^/]+)\/properties\/([^/]+)$/u);
+  const crmCollectionMatch = route.match(/^\/workspaces\/([^/]+)\/(customers|property-managers|properties)$/u);
+  const requestCollectionMatch = route.match(/^\/workspaces\/([^/]+)\/requests$/u);
+  const estimateCollectionMatch = route.match(/^\/workspaces\/([^/]+)\/estimates$/u);
+  const needsOwnerSession = route === '/workspaces'
+    || route === '/settings'
+    || Boolean(workspaceMatch || propertyDetailMatch || crmCollectionMatch || requestCollectionMatch || estimateCollectionMatch);
 
   useEffect(() => {
     if (!needsOwnerSession) {
@@ -631,12 +1221,31 @@ export function App() {
     case '/verify-email': page = <VerifyEmailPage text={text} />; break;
     case '/forgot-password': page = <ForgotPasswordPage text={text} />; break;
     case '/reset-password': page = <ResetPasswordPage text={text} />; break;
+    case '/estimates/accept': page = <EstimateAcceptancePage text={text} />; break;
     case '/workspaces': page = <WorkspacesPage text={text} />; break;
     case '/settings': page = <SettingsPage text={text} language={account?.preferredLanguage ?? language} onLanguageSaved={updateLocalLanguage} />; break;
     default:
-      page = workspaceMatch
-        ? <WorkspaceDetailPage text={text} workspaceId={decodeURIComponent(workspaceMatch[1])} />
-        : <Landing text={text} />;
+      if (propertyDetailMatch) {
+        page = <PropertyDetailPage
+          text={text}
+          workspaceId={decodeURIComponent(propertyDetailMatch[1])}
+          propertyId={decodeURIComponent(propertyDetailMatch[2])}
+        />;
+      } else if (requestCollectionMatch) {
+        page = <ServiceRequestsPage text={text} workspaceId={decodeURIComponent(requestCollectionMatch[1])} />;
+      } else if (estimateCollectionMatch) {
+        page = <EstimatesPage text={text} workspaceId={decodeURIComponent(estimateCollectionMatch[1])} />;
+      } else if (crmCollectionMatch) {
+        page = <CrmCollectionPage
+          text={text}
+          workspaceId={decodeURIComponent(crmCollectionMatch[1])}
+          module={crmCollectionMatch[2]}
+        />;
+      } else if (workspaceMatch) {
+        page = <WorkspaceDetailPage text={text} workspaceId={decodeURIComponent(workspaceMatch[1])} />;
+      } else {
+        page = <Landing text={text} />;
+      }
   }
 
   return <Shell text={text} language={language} setLanguage={updateLocalLanguage} isOwner={Boolean(account)}>{page}</Shell>;

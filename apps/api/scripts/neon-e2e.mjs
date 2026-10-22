@@ -11,8 +11,10 @@ const emails = [`owner-a-${suffix}@example.invalid`, `owner-b-${suffix}@example.
 const userIds = [];
 const workspaceIds = [];
 const server = app.listen(0, '127.0.0.1');
+let stage = 'start';
 
 try {
+  stage = 'seed test records';
   await once(server, 'listening');
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
@@ -39,6 +41,7 @@ try {
     workspaceIds.push(workspace.id);
   }
 
+  stage = 'owner login';
   const loginResponse = await fetch(`${baseUrl}/api/auth/login`, {
     method: 'POST',
     headers: {
@@ -57,6 +60,7 @@ try {
   assert.ok(setCookie?.includes('HttpOnly'));
   const cookie = setCookie.split(';', 1)[0];
 
+  stage = 'persist language preference';
   const languageResponse = await fetch(`${baseUrl}/api/auth/preferences/language`, {
     method: 'PATCH',
     headers: {
@@ -72,6 +76,7 @@ try {
   assert.equal(sessionResponse.status, 200);
   assert.equal((await sessionResponse.json()).data.preferredLanguage, 'es');
 
+  stage = 'list owned workspaces';
   const workspacesResponse = await fetch(`${baseUrl}/api/workspaces`, {
     headers: { cookie },
   });
@@ -79,18 +84,21 @@ try {
   const workspacesBody = await workspacesResponse.json();
   assert.deepEqual(workspacesBody.data.map(({ id }) => id), [workspaceIds[0]]);
 
+  stage = 'deny cross-workspace access';
   const otherWorkspaceResponse = await fetch(`${baseUrl}/api/workspaces/${workspaceIds[1]}`, {
     headers: { cookie },
   });
   assert.equal(otherWorkspaceResponse.status, 404, 'owner must not access another workspace');
 
+  stage = 'database readiness';
   const readinessResponse = await fetch(`${baseUrl}/health/ready`);
   assert.equal(readinessResponse.status, 200);
   assert.deepEqual(await readinessResponse.json(), { status: 'ok', database: 'ok' });
 
   console.log('Neon E2E passed: login, session cookie, saved language preference, workspace isolation, and PostgreSQL readiness.');
-} catch {
-  console.error('Neon E2E failed; detailed errors suppressed to avoid exposing connection information.');
+} catch (error) {
+  const safeReason = error?.code ?? error?.name ?? 'UnknownError';
+  console.error(`Neon E2E failed during ${stage} (${safeReason}); details suppressed.`);
   process.exitCode = 1;
 } finally {
   await new Promise((resolve) => server.close(resolve));

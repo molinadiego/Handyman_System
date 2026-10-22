@@ -56,6 +56,7 @@ Aplicación comercial para que negocios de handyman administren sus operaciones 
 - Trabajo fijo: horas informativas, no alteran precio. Cambios requieren ajuste con motivo.
 - Trabajo adicional: el silencio jamás es aprobación.
 - Lockboxes e instrucciones de acceso solo visibles para usuarios autorizados. Un empleado asignado puede ver el lockbox dentro de la orden protegida mientras su código siga vigente; no incluirlo en mensajes de envío y auditar su consulta.
+- Lockboxes cifrados en la aplicación con AES-256-GCM; clave de 32 bytes suministrada como secreto de entorno, no guardada en base de datos ni repositorio. La lectura debe auditarse.
 - Facturas emitidas y pagos mantienen historia. Al anular factura, conservarla y devolver la orden a “Pendiente de Facturar”.
 - Confirmación o reprogramación/cancelación de cita sigue las reglas y aprobación del dueño definidas en `handyman.txt`.
 

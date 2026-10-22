@@ -68,8 +68,20 @@ h1 { max-width: 620px; margin: 20px 0; color: #122a35; font-size: clamp(2.8rem, 
 .auth-title { margin: 8px 0 24px; font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.1; letter-spacing: -0.045em; }
 .auth-form { display: grid; gap: 17px; }
 .auth-form label { display: grid; gap: 7px; color: #355057; font-size: 0.92rem; font-weight: 650; }
-.auth-form input, .auth-form select { width: 100%; min-height: 46px; border: 1px solid #cbd8d5; border-radius: 9px; padding: 10px 12px; background: #fff; color: #17313a; font: inherit; }
-.auth-form input:focus, .auth-form select:focus { outline: 3px solid #ef9c5840; border-color: #bd6c31; }
+.auth-form input, .auth-form select, .auth-form textarea { width: 100%; min-height: 46px; border: 1px solid #cbd8d5; border-radius: 9px; padding: 10px 12px; background: #fff; color: #17313a; font: inherit; }
+.auth-form textarea { resize: vertical; }
+.auth-form input:focus, .auth-form select:focus, .auth-form textarea:focus { outline: 3px solid #ef9c5840; border-color: #bd6c31; }
+.estimate-card { display: grid; gap: 14px; padding: 18px 0; border-bottom: 1px solid #e6ecea; }
+.estimate-heading, .estimate-actions, .line-item-heading, .form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.estimate-heading > div { display: grid; gap: 5px; }
+.estimate-heading span, .version-history { color: #748588; font-size: 0.9rem; }
+.recipient-input { display: grid; gap: 7px; color: #355057; font-size: 0.92rem; font-weight: 650; }
+.recipient-input input { min-height: 46px; border: 1px solid #cbd8d5; border-radius: 9px; padding: 10px 12px; font: inherit; }
+.estimate-line-form { display: grid; gap: 12px; padding: 14px; border: 1px solid #e1e9e6; border-radius: 12px; }
+.estimate-line-form label { display: grid; gap: 7px; color: #355057; font-size: 0.92rem; font-weight: 650; }
+.checkbox-label { display: flex !important; align-items: center; gap: 10px !important; }
+.checkbox-label input { width: 18px; min-height: 18px; }
+.version-history summary { cursor: pointer; font-weight: 700; }
 .form-footnote { margin: 18px 0 0; color: #607277; font-size: 0.92rem; }
 .form-footnote a { color: #286c58; font-weight: 700; }
 .form-notice { margin: 0 0 18px; border-radius: 9px; padding: 12px 14px; background: #edf3f1; color: #355057; line-height: 1.5; }
@@ -81,6 +93,17 @@ h1 { max-width: 620px; margin: 20px 0; color: #122a35; font-size: clamp(2.8rem, 
 .workspace-summary { display: grid; gap: 5px; }
 .workspace-summary span, .workspace-time-zone { color: #748588; font-size: 0.9rem; }
 .workspace-description { margin: 12px 0 24px; }
+.workspace-module-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+.crm-list { margin: 18px 0; }
+.crm-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 15px 0; border-bottom: 1px solid #e6ecea; color: #355057; }
+.crm-row > div { display: grid; gap: 5px; }
+.crm-row span { color: #748588; font-size: 0.9rem; }
+.crm-form { margin-top: 25px; padding-top: 22px; border-top: 1px solid #e6ecea; }
+.crm-form h2, .crm-form h3, .crm-section h2 { margin: 0; color: #17313a; font-size: 1.15rem; }
+.crm-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid #e6ecea; }
+.crm-section > .form-footnote { margin-bottom: 15px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.revealed-value { padding: 8px 11px; border-radius: 8px; background: #fff4e9; color: #733c19 !important; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; user-select: all; }
 .workspace-form { margin-top: 28px; padding-top: 24px; border-top: 1px solid #e6ecea; }
 
 @media (max-width: 760px) {
@@ -91,4 +114,7 @@ h1 { max-width: 620px; margin: 20px 0; color: #122a35; font-size: clamp(2.8rem, 
   .auth-card { padding: 25px 20px; }
   .workspace-heading { align-items: flex-start; flex-direction: column; }
   .workspace-row { align-items: flex-start; flex-direction: column; }
+  .crm-row { align-items: flex-start; flex-direction: column; }
+  .estimate-heading, .estimate-actions, .line-item-heading, .form-actions { align-items: stretch; flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
 }

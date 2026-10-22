@@ -26,8 +26,8 @@
 - **Customer:** `workspaceId`, tipo persona/empresa, nombre, contacto y notas.
 - **PropertyManager:** `workspaceId`, nombre y contactos de administradora.
 - **Property:** `workspaceId`, dirección normalizada, datos descriptivos y notas no sensibles.
-- **PropertyRelationship:** propiedad, cliente/administradora, tipo de relación y fechas de vigencia. Mantener relaciones previas; no reescribir trabajos históricos al cambiar relación.
-- **PropertyAccessCredential (opcional/restringido):** `workspaceId`, propiedad, tipo, valor cifrado o referencia segura, permisos/alcance y timestamps. Diseñar acceso mínimo; no exponer en respuestas generales ni mensajes.
+- **PropertyRelationship:** `workspaceId`, propiedad, exactamente un cliente o una administradora, rol coincidente (`OWNER`/`PROPERTY_MANAGER`) y fechas de vigencia. Claves foráneas compuestas impiden vínculos entre workspaces; mantener relaciones previas y no reasignar trabajos históricos.
+- **PropertyAccessCredential (restringido):** `workspaceId`, propiedad, tipo/label, ciphertext, nonce, authTag, keyVersion, autor y timestamps. Cifrar el valor en aplicación con AES-256-GCM usando secreto de entorno; no exponer en respuestas generales ni mensajes. Las revelaciones se auditan.
 
 ### Solicitudes, presupuestos y órdenes
 

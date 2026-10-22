@@ -29,6 +29,13 @@
 - El contexto de workspace de cada petición se valida en servidor contra la sesión autenticada y la propiedad del workspace. No confiar en IDs enviados por el cliente sin autorización.
 - Los accesos limitados de empleados se implementan con los códigos específicos por asignación/orden definidos en `01-core-workflow.md`, no con una sesión de dueño.
 
+## Información de acceso a propiedades
+
+- Lockboxes e instrucciones de acceso se cifran en aplicación con AES-256-GCM antes de persistir.
+- La clave debe ser de 32 bytes, venir de un secreto del entorno (`LOCKBOX_ENCRYPTION_KEY`) y nunca guardarse en DB, código, Git o logs.
+- El propietario puede gestionar y revelar credenciales de propiedades de su workspace; cada revelación se audita. El valor no aparece en listas ni comunicaciones.
+- El acceso del empleado a una credencial se habilita solo mediante su código vigente para la orden asignada; la integración con órdenes se completa al modelar WorkOrder/Assignment.
+
 ## Arquitectura y dependencias externas
 
 - Mantener el backend: Controllers → Services → Repositories → Prisma/PostgreSQL; modelos de dominio independientes.
