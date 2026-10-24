@@ -51,3 +51,54 @@ test('Resend transport reports network failure without exposing request details'
     (error) => error.code === 'EMAIL_PROVIDER_UNREACHABLE' && !error.message.includes('private'),
   );
 });
+
+test('work order assignment email contains only the order access code and never access credentials', async () => {
+  let payload;
+  const transport = new ResendEmailTransport({
+    apiKey: 'test-api-key',
+    from: 'no-reply@example.test',
+    fetchImpl: async (_url, options) => {
+      payload = JSON.parse(options.body);
+      return { ok: true };
+    },
+  });
+
+  await transport.sendWorkOrderAccessCodeEmail({
+    to: 'helper@example.test',
+    employeeName: 'Helper',
+    workOrderNumber: 4,
+    code: 'one-order-code',
+    link: 'https://app.example.test/assigned-work-order',
+  });
+
+  assert.match(payload.text, /one-order-code/u);
+  assert.match(payload.text, /only provides access to this order/u);
+  assert.doesNotMatch(payload.text, /lockbox value|door code value/u);
+  assert.doesNotMatch(payload.html, /lockbox value|door code value/u);
+  assert.doesNotMatch(payload.html, /[?&]code=/u);
+});
+
+test('appointment change email sends a secure link without lockbox details', async () => {
+  let payload;
+  const transport = new ResendEmailTransport({
+    apiKey: 'test-api-key',
+    from: 'no-reply@example.test',
+    fetchImpl: async (_url, options) => {
+      payload = JSON.parse(options.body);
+      return { ok: true };
+    },
+  });
+
+  await transport.sendAppointmentChangeRequestEmail({
+    to: 'tenant@example.test',
+    workOrderNumber: 31,
+    title: 'Repair the gate',
+    scheduledAt: 'November 3, 2026 at 1:00 PM',
+    link: 'https://app.example.test/appointment-response?token=secret-token',
+  });
+
+  assert.match(payload.text, /confirm the appointment or request a reschedule\/cancellation/u);
+  assert.match(payload.text, /secret-token/u);
+  assert.doesNotMatch(payload.text, /lockbox|door code|access code/u);
+  assert.doesNotMatch(payload.html, /lockbox|door code|access code/u);
+});

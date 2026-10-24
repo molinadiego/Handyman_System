@@ -34,6 +34,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{css,html,js,svg,woff2}'],
+        globIgnores: ['**/heic2any-*.js'],
         navigateFallbackDenylist: [/^\/api\//],
       },
     }),

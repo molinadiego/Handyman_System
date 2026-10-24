@@ -32,4 +32,18 @@ export class EmailService {
     }
     return this.transport.sendEstimateEmail(message);
   }
+
+  async sendWorkOrderAccessCodeEmail(message) {
+    if (!this.transport) {
+      throw new AppError('EMAIL_PROVIDER_NOT_CONFIGURED', 'Email delivery is not configured.', 503);
+    }
+    return this.transport.sendWorkOrderAccessCodeEmail(message);
+  }
+
+  async sendAppointmentChangeRequestEmail(message) {
+    if (!this.transport) {
+      throw new AppError('EMAIL_PROVIDER_NOT_CONFIGURED', 'Email delivery is not configured.', 503);
+    }
+    return this.transport.sendAppointmentChangeRequestEmail(message);
+  }
 }

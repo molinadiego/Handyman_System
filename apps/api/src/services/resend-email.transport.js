@@ -65,6 +65,41 @@ export class ResendEmailTransport {
     });
   }
 
+  async sendWorkOrderAccessCodeEmail({ to, employeeName, workOrderNumber, code, link, language = 'en' }) {
+    const safeName = escapeHtml(employeeName);
+    const safeCode = escapeHtml(code);
+    const safeLink = escapeHtml(link);
+    const isSpanish = language === 'es';
+    return this.send({
+      to,
+      subject: isSpanish
+        ? `Acceso a orden de trabajo OT-${workOrderNumber}`
+        : `Access to work order OT-${workOrderNumber}`,
+      text: isSpanish
+        ? `Hola ${employeeName}. Se te asignó la orden OT-${workOrderNumber}. Abre ${link} e ingresa este código: ${code}. El código solo permite consultar esta orden. No compartas el código. No incluye datos de lockbox.`
+        : `Hello ${employeeName}. You were assigned work order OT-${workOrderNumber}. Open ${link} and enter this code: ${code}. The code only provides access to this order. Do not share the code. Lockbox details are not included in this email.`,
+      html: isSpanish
+        ? `<p>Hola ${safeName}. Se te asignó la orden OT-${workOrderNumber}.</p><p><a href="${safeLink}">Abrir acceso a la orden</a></p><p>Ingresa este código: <strong>${safeCode}</strong></p><p>El código solo permite consultar esta orden. No compartas el código. Los datos de lockbox no se incluyen en este correo.</p>`
+        : `<p>Hello ${safeName}. You were assigned work order OT-${workOrderNumber}.</p><p><a href="${safeLink}">Open work order access</a></p><p>Enter this code: <strong>${safeCode}</strong></p><p>The code only provides access to this order. Do not share the code. Lockbox details are not included in this email.</p>`,
+    });
+  }
+
+  async sendAppointmentChangeRequestEmail({ to, workOrderNumber, title, scheduledAt, link, language = 'en' }) {
+    const safeTitle = escapeHtml(title);
+    const safeLink = escapeHtml(link);
+    const isSpanish = language === 'es';
+    return this.send({
+      to,
+      subject: isSpanish ? `Cita de la orden OT-${workOrderNumber}` : `Appointment for work order OT-${workOrderNumber}`,
+      text: isSpanish
+        ? `La orden OT-${workOrderNumber} (${title}) está programada para ${scheduledAt}. Confirma la cita o solicita una reprogramación/cancelación desde este enlace seguro: ${link}. La agenda no cambia por una solicitud hasta que el dueño responda.`
+        : `Work order OT-${workOrderNumber} (${title}) is scheduled for ${scheduledAt}. Use this secure link to confirm the appointment or request a reschedule/cancellation: ${link}. A change request will not alter the schedule until the owner responds.`,
+      html: isSpanish
+        ? `<p>La orden OT-${workOrderNumber} (${safeTitle}) está programada para ${escapeHtml(scheduledAt)}.</p><p><a href="${safeLink}">Confirmar cita o solicitar un cambio</a></p><p>La agenda no cambia por una solicitud hasta que el dueño responda.</p>`
+        : `<p>Work order OT-${workOrderNumber} (${safeTitle}) is scheduled for ${escapeHtml(scheduledAt)}.</p><p><a href="${safeLink}">Confirm appointment or request a change</a></p><p>A change request will not alter the schedule until the owner responds.</p>`,
+    });
+  }
+
   async send({ to, subject, text, html, attachments }) {
     if (!this.isConfigured()) {
       throw new AppError('EMAIL_PROVIDER_NOT_CONFIGURED', 'Email delivery is not configured.', 503);

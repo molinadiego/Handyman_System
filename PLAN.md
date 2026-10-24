@@ -55,24 +55,29 @@ Plan derivado de `handyman.txt`. Marcar una casilla solo cuando el alcance esté
 - [x] Aceptar presupuestos mediante enlace seguro; vencimiento a 15 días corridos del envío y tratamiento del enlace vencido.
 - [x] Generar PDF y permitir envíos explícitos con destinatarios elegidos por el dueño.
 - [x] Conservar historial de versiones, envíos y respuestas.
-- [ ] Permitir crear una orden desde un presupuesto aceptado o desde un acuerdo directo (se implementará junto con el modelo WorkOrder en Fase 5).
+- [x] Permitir crear explícitamente una orden desde un presupuesto aceptado o desde un acuerdo directo; preservar snapshots del acuerdo.
 
-**Criterio de cierre:** una solicitud o presupuesto no genera automáticamente una orden o factura; las versiones anteriores permanecen consultables. La conversión explícita a WorkOrder queda vinculada a la Fase 5 para evitar inventar estados de órdenes antes de implementar ese modelo.
+**Criterio de cierre:** una solicitud o presupuesto no genera automáticamente una orden o factura; las versiones anteriores permanecen consultables. La conversión explícita conserva su vínculo e importe acordado en WorkOrder.
 
 ## Fase 5 — Órdenes de trabajo, costos y agenda
 
-- [ ] Gestionar alcance, estado, prioridad, fechas, asignaciones y cancelaciones con motivo.
-- [ ] Soportar precio fijo y tiempo y materiales.
-- [ ] Registrar horas, materiales y ajustes explícitos de alcance o precio.
-- [ ] Registrar trabajos adicionales por separado y su autorización; el silencio nunca cuenta como aprobación.
-- [ ] Crear calendario y lista de trabajos con avisos de conflicto.
-- [ ] Registrar solicitudes de reprogramación/cancelación como pendientes hasta que el dueño decida.
-- [ ] Configurar recordatorios y registro de comunicaciones, con el contacto adecuado para cada tipo de cliente.
-- [ ] Permitir al empleado asignado consultar su orden con su código específico y registrar inicio, progreso y finalización.
-- [ ] Revocar el código al finalizar/cancelar la orden o retirar la asignación del empleado.
-- [ ] Permitir preparar la orden asignada con conexión, consultarla y registrar avances sin conexión, y sincronizar al reconectar; documentar el límite de revocación offline.
-- [ ] Resolver conflictos offline conservando eventos y solicitando revisión del dueño.
-- [ ] Restringir carga de fotos/videos a permisos habilitados por el dueño.
+- [x] Crear órdenes directas y convertir presupuestos aceptados solo por acción explícita; secuencia OT por workspace e historial de alcance/precio acordado.
+- [x] Registrar estados de trabajo, mantener billing status separado y exigir motivo para cancelar, reprogramar o devolver un trabajo incompleto a pendiente.
+- [x] Registrar modalidad de precio fijo o tiempo y materiales en la orden.
+- [x] Registrar prioridad y cita con inicio UTC, fin y duración estimada; convertir usando la zona IANA del workspace y conservar historial.
+- [x] Gestionar empleados/ayudantes y sus permisos configurables; asignar al dueño y empleados a órdenes, con código exclusivo por orden enviado por email, historial y revocación.
+- [x] Avisar sin bloquear de solapamientos entre órdenes que comparten dueño o empleado asignado.
+- [x] Registrar horas en UTC, costos reales de materiales y cargos manuales por materiales en T&M; conservar correcciones mediante anulación auditada y ajustes separados con motivo. No calcular cargos laborales automáticamente.
+- [x] Registrar trabajos adicionales por separado con razón/estimación y autorización manual verificable; el silencio nunca cuenta como aprobación. (Aprobación presencial/telefónica lista; enlace de autorización para una iteración posterior.)
+- [x] Añadir vista mensual de calendario además de la lista y los avisos de solapamiento.
+- [x] Registrar solicitudes seguras de confirmación/reprogramación/cancelación; las de cambio quedan pendientes hasta la decisión del dueño.
+- [x] Enviar manualmente enlaces de opciones de cita por email al contacto designado (tenant para propiedad administrada) y registrar resultados. Recordatorios automatizados y canales SMS/WhatsApp quedan para una iteración posterior.
+- [x] Permitir al empleado asignado consultar solo su orden con código de acceso de alta entropía y registrar inicio, progreso y finalización.
+- [x] Revocar el código al completar/cancelar la orden, desactivar al empleado, cambiar su email o retirar la asignación.
+- [x] Permitir consultar lockbox solo dentro de la orden asignada y auditar cada revelación; enviar el código por email sin datos de acceso.
+- [x] Preparar online una orden asignada y guardar solo los datos necesarios cifrados con AES-256-GCM, incluida la credencial autorizada; derivar la clave del código sin guardarlo, encolar avances y accesos offline y sincronizar al reconectar. Informar límites de revocación.
+- [x] Resolver conflictos offline preservando ambos eventos y exigiendo revisión explícita del dueño.
+- [x] Cargar fotos/videos solo con permiso del dueño; comprimir fotos en el dispositivo, aceptar JPEG/PNG/HEIC (HEIC convertido a JPEG), limitar fotos a 5 MB y videos MP4/MOV a 50 MB/60 s, en bucket privado branch-aware.
 
 **Criterio de cierre:** las pruebas confirman que las horas no alteran precios fijos, que los cambios requieren motivo y que las solicitudes de cambio no modifican la agenda hasta ser aprobadas.
 
